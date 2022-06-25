@@ -1,5 +1,6 @@
 import { gql, useMutation } from "@apollo/client";
 import { FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Logo } from "../components/Logo";
 
 // mutation for create subscriber
@@ -11,18 +12,22 @@ const CREATE_SUBSCRIBER_MUTATION = gql`
   }
 `;
 export function Subscribe() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [createSubscriber] = useMutation(CREATE_SUBSCRIBER_MUTATION);
-  function handleSubscribe(event: FormEvent) {
+  const [createSubscriber, { loading }] = useMutation(
+    CREATE_SUBSCRIBER_MUTATION
+  );
+  async function handleSubscribe(event: FormEvent) {
     event.preventDefault();
     console.log(name, email);
-    createSubscriber({
+    await createSubscriber({
       variables: {
         name,
         email,
       },
     });
+    navigate("/event");
   }
   return (
     <div className="min-h-screen bg-blur bg-cover bg-no-repeat flex flex-col items-center">
@@ -49,14 +54,13 @@ export function Subscribe() {
             onSubmit={handleSubscribe}
             className="flex flex-col gap-2 w-full"
           >
-            {name}
             <input
               className="bg-gray-900 rounded px-5 h-14"
               type="text"
               placeholder="Seu nome completo"
               onChange={(event) => setName(event.target.value)}
             />
-            {email}
+
             <input
               className="bg-gray-900 rounded px-5 h-14"
               type="email"
@@ -64,8 +68,9 @@ export function Subscribe() {
               onChange={(event) => setEmail(event.target.value)}
             />
             <button
+              disabled={loading}
               type="submit"
-              className="mt-4 bg-green-500 uppercase py-4 rounded font-bold text-sm hover:bg-green-700"
+              className="mt-4 bg-green-500 uppercase py-4 rounded font-bold text-sm hover:bg-green-700 disabled:opacity-50"
             >
               garantir minha vaga
             </button>
